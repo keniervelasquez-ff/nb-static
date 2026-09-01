@@ -61,36 +61,51 @@ a{color:#C6FF3A}a:hover{color:#dcff7d}
    tamano: con la misma parada recorren distancias distintas, asi que nunca se mueven
    como un bloque rigido. */
 /* ============ CORRIENTE ============
-   Sintesis de las TRES referencias que mando Ken, no de una:
-   · rio  -> muchas franjas finas y largas, en varios tonos, a VELOCIDADES DISTINTAS.
-             Ese desfase entre capas es lo que de verdad se lee como corriente.
-   · ola  -> bordes irregulares, tonos de una misma familia, avance y retroceso.
-   · lava -> la forma cambia mientras se mueve.
-   LECCION CARA: cada vez que "calibre a uso diario" (opacidades .6, ciclos de 30s,
-   bordes muy difuminados) el efecto se volvio INVISIBLE para Ken. Lo unico que llego a
-   ver fue el build de diagnostico: opacidad alta, ciclo corto, borde definido. Ese es
-   el nivel bueno. NO bajarlo "para que quede fino" sin que el lo pida.
-   Las tres capas van a 6,5 / 11,5 / 19 segundos: un factor 3 entre la mas rapida y la
-   mas lenta. Ese contraste es el efecto; si se igualan, se pierde. */
+   TRES ARREGLOS QUE COSTARON UNA ITERACION CADA UNO:
+
+   1. EL CORTE RECTO que veia Ken era GEOMETRIA, no animacion. Las capas iban con
+      inset:-32% (un rectangulo de 643x323 sobre una ficha de 392x197) y ADEMAS giradas.
+      Un rectangulo girado solo cubre con seguridad su circulo INSCRITO: 161px de radio.
+      La diagonal de la tarjeta necesita 219. O sea que el borde de la capa cruzaba la
+      ficha y se veia como un tajo. Ahora van a inset:-68%, que da 2,36x y cubre a
+      cualquier angulo. REGLA: si una capa se gira, su lado CORTO tiene que ser mayor
+      que la DIAGONAL de la tarjeta, no que su lado largo.
+
+   2. "PARECEN GUSANOS." Las franjas eran 13% x 4%, que sobre la ficha son 6,5:1 — un
+      gusano. El agua son masas anchas, no hilos. Ahora rondan 2:1. OJO: como la tarjeta
+      es 2:1, unos porcentajes X e Y IGUALES ya dan una mancha 2:1 en pixeles. Para algo
+      redondo hace falta Y del doble que X.
+
+   3. "NO EN LINEA RECTA." Seis paradas por vuelta con giros de verdad (derecha, luego
+      arriba, luego izquierda-abajo) y ademas se anima el TAMANO, asi que la masa se
+      estira y se comprime por el camino. Timing 'linear' a proposito: con ease-in-out
+      la masa casi se para en cada parada y eso tambien se leia como tiron.
+
+   Y MAS LENTO. Ken lo pidio explicitamente: "no tienen que ir tan rapido, de hecho
+   lento pero con movimientos mas fluidos". La visibilidad se saca del TAMANO y del
+   CONTRASTE, no de la velocidad. */
 @keyframes rio1{
-  0%  {background-position:96% 18%,88% 44%,92% 70%,84% 90%}
-  26% {background-position:62% 26%,54% 38%,58% 78%,50% 82%}
-  52% {background-position:28% 14%,20% 50%,24% 64%,16% 94%}
-  78% {background-position:-6% 24%,-14% 42%,-10% 74%,-18% 86%}
-  100%{background-position:96% 18%,88% 44%,92% 70%,84% 90%}
+  0%  {background-position:82% 20%,70% 62%,88% 84%; background-size:300% 300%,260% 260%,340% 340%}
+  18% {background-position:64% 44%,58% 30%,70% 62%; background-size:330% 330%,240% 240%,300% 300%}
+  37% {background-position:44% 22%,40% 66%,52% 34%; background-size:280% 280%,290% 290%,370% 370%}
+  56% {background-position:30% 58%,22% 26%,34% 72%; background-size:340% 340%,250% 250%,310% 310%}
+  79% {background-position:8% 30%,6% 70%,14% 40%;   background-size:300% 300%,280% 280%,350% 350%}
+  100%{background-position:82% 20%,70% 62%,88% 84%; background-size:300% 300%,260% 260%,340% 340%}
 }
 @keyframes rio2{
-  0%  {background-position:-8% 78%,-2% 52%,-12% 30%,4% 8%}
-  29% {background-position:26% 68%,34% 60%,22% 40%,38% 16%}
-  55% {background-position:64% 82%,70% 46%,58% 22%,76% 4%}
-  81% {background-position:98% 72%,104% 56%,94% 34%,110% 12%}
-  100%{background-position:-8% 78%,-2% 52%,-12% 30%,4% 8%}
+  0%  {background-position:12% 74%,24% 34%,6% 54%;  background-size:280% 280%,320% 320%,240% 240%}
+  21% {background-position:30% 52%,38% 62%,22% 28%; background-size:250% 250%,280% 280%,290% 290%}
+  44% {background-position:52% 76%,48% 30%,44% 60%; background-size:300% 300%,340% 340%,230% 230%}
+  63% {background-position:70% 40%,66% 68%,60% 26%; background-size:260% 260%,290% 290%,300% 300%}
+  85% {background-position:90% 66%,86% 36%,80% 70%; background-size:290% 290%,310% 310%,250% 250%}
+  100%{background-position:12% 74%,24% 34%,6% 54%;  background-size:280% 280%,320% 320%,240% 240%}
 }
 @keyframes rio3{
-  0%  {background-position:20% 8%,72% 92%,44% 50%}
-  33% {background-position:56% 40%,38% 62%,80% 20%}
-  67% {background-position:88% 74%,14% 28%,26% 86%}
-  100%{background-position:20% 8%,72% 92%,44% 50%}
+  0%  {background-position:26% 14%,68% 86%,46% 48%; background-size:300% 300%,260% 260%,330% 330%}
+  24% {background-position:44% 40%,52% 60%,64% 24%; background-size:270% 270%,300% 300%,290% 290%}
+  49% {background-position:66% 22%,34% 44%,32% 74%; background-size:320% 320%,240% 240%,350% 350%}
+  73% {background-position:48% 68%,58% 18%,70% 40%; background-size:280% 280%,290% 290%,300% 300%}
+  100%{background-position:26% 14%,68% 86%,46% 48%; background-size:300% 300%,260% 260%,330% 330%}
 }
 @keyframes velo{from{background-position:0% 50%}to{background-position:100% 50%}}
 /* Las tres variantes de recorrido del velo. Cual se usa lo decide la FAMILIA, en la
@@ -293,7 +308,7 @@ window.__prof={};window.__pf=function(k,ms){var p=window.__prof;p[k]=p[k]||[0,0,
             <!-- NEBULOSA: quieta y nitida. No se escala, no se filtra, no se toca. -->
             <div data-tex="{{it.texKey}}" style="position:absolute;inset:0;pointer-events:none;background-size:cover;background-position:center"></div>
             <!-- VISITA: el color de la familia entra por su esquina y se retira -->
-            <div style="position:absolute;inset:-32%;pointer-events:none;opacity:var(--vmax);mix-blend-mode:color;transform:rotate(var(--rotV));background:radial-gradient(15% 4% at 50% 50%,{{it.famCol}} 0%,{{it.famCol}} 28%,transparent 80%),radial-gradient(11% 5% at 50% 50%,var(--pc3) 0%,var(--pc3) 24%,transparent 80%),radial-gradient(13% 3.5% at 50% 50%,var(--pc) 0%,var(--pc) 26%,transparent 80%);background-size:300% 300%,250% 250%,350% 350%;background-repeat:no-repeat;animation:{{it.rio3}}"></div>
+            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--vmax);mix-blend-mode:color;transform:rotate(var(--rotV));background:radial-gradient(13% 13% at 50% 50%,{{it.famCol}} 0%,{{it.famCol}} 30%,transparent 82%),radial-gradient(15% 11% at 50% 50%,var(--pc3) 0%,var(--pc3) 32%,transparent 82%),radial-gradient(11% 14% at 50% 50%,var(--pc2) 0%,var(--pc2) 30%,transparent 82%);background-repeat:no-repeat;animation:{{it.rio3}}"></div>
             <!-- COLOR 1: dos manchas que fluyen cruzandose. OPACIDAD FIJA, no late.
                  Las manchas son MAS PEQUENAS QUE LA TARJETA a proposito. OJO CON LA
                  CUENTA: en radial-gradient(X% ...) la X es el RADIO, y va sobre el TILE,
@@ -303,10 +318,10 @@ window.__prof={};window.__pf=function(k,ms){var p=window.__prof;p[k]=p[k]||[0,0,
                  que la tarjeta, y una mancha que desborda la ficha se desliza SIN QUE
                  CAMBIE NADA en pantalla. Por eso Ken no veia el flujo. Hace falta que el
                  BORDE de la mancha entre y salga del encuadre. -->
-            <div style="position:absolute;inset:-32%;pointer-events:none;opacity:var(--o1);mix-blend-mode:color;transform:rotate(var(--rotA));background:radial-gradient(13% 4% at 50% 50%,var(--pc) 0%,var(--pc) 30%,transparent 80%),radial-gradient(11% 5% at 50% 50%,var(--pc3) 0%,var(--pc3) 26%,transparent 80%),radial-gradient(15% 3.5% at 50% 50%,var(--pc2) 0%,var(--pc2) 28%,transparent 80%),radial-gradient(9% 6% at 50% 50%,var(--pc) 0%,var(--pc) 24%,transparent 80%);background-size:300% 300%,260% 260%,340% 340%,220% 220%;background-repeat:no-repeat;animation:{{it.rio1}}"></div>
+            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--o1);mix-blend-mode:color;transform:rotate(var(--rotA));background:radial-gradient(13% 12% at 50% 50%,var(--pc) 0%,var(--pc) 34%,transparent 82%),radial-gradient(11% 15% at 50% 50%,var(--pc3) 0%,var(--pc3) 30%,transparent 82%),radial-gradient(15% 10% at 50% 50%,var(--pc4) 0%,var(--pc4) 32%,transparent 82%);background-repeat:no-repeat;animation:{{it.rio1}}"></div>
             <!-- COLOR 2: igual, pero fluyendo en direccion CONTRARIA. Al cruzarse, los dos
                  colores se intercambian el sitio dentro de la tarjeta. -->
-            <div style="position:absolute;inset:-32%;pointer-events:none;opacity:var(--o2);mix-blend-mode:color;transform:rotate(var(--rotB));background:radial-gradient(14% 4.5% at 50% 50%,var(--pc2) 0%,var(--pc2) 28%,transparent 80%),radial-gradient(10% 5.5% at 50% 50%,var(--pc) 0%,var(--pc) 26%,transparent 80%),radial-gradient(16% 3% at 50% 50%,var(--pc3) 0%,var(--pc3) 30%,transparent 80%),radial-gradient(12% 4% at 50% 50%,var(--pc2) 0%,var(--pc2) 25%,transparent 80%);background-size:280% 280%,240% 240%,320% 320%,200% 200%;background-repeat:no-repeat;animation:{{it.rio2}}"></div>
+            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--o2);mix-blend-mode:color;transform:rotate(var(--rotB));background:radial-gradient(14% 11% at 50% 50%,var(--pc2) 0%,var(--pc2) 32%,transparent 82%),radial-gradient(12% 16% at 50% 50%,var(--pc5) 0%,var(--pc5) 28%,transparent 82%),radial-gradient(10% 13% at 50% 50%,var(--pc) 0%,var(--pc) 34%,transparent 82%);background-repeat:no-repeat;animation:{{it.rio2}}"></div>
             <!-- BORDE VIVO: al mismo compas que el pulso -->
             <div style="position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1.5px var(--eg),inset 0 0 26px -6px var(--eg);opacity:.18;animation:{{it.borde}}"></div>
             <!-- VELO: el scrim es mas ancho que la tarjeta y se desliza. background-size va
@@ -573,7 +588,7 @@ class Component extends DCLogic {
   ];
   // Subir esto en cada cambio que se despliegue: aparece bajo la barra de progreso y
   // permite ver de un vistazo si Netlify (o el cache del navegador) sirve lo ultimo.
-  BUILD = "2026-08-31l";
+  BUILD = "2026-08-31m";
 
   FAMILY_COLOR = {"Musicales / Teatro":"#FCD34D","Hip-Hop / R&B":"#FBBF24","Melodic Death":"#C6FF3A","Deathcore":"#EF4444","Death / Tech Death":"#D42A2A","Mathcore / Caótico":"#F97316","Metalcore":"#FF3B6B","Prog / Djent":"#3BE0FF","Power / Symphonic / Folk":"#FFD93B","Black / Doom / Sludge":"#9B8CFF","Thrash / Groove / Heavy":"#FB923C","Nu Metal / Industrial":"#9B6BFF","Alt Metal / Grunge":"#7FB0FF","Avant-garde / Experimental":"#B6FF3A","Funk / Jazz":"#FBBF24","Post-Rock / Instrumental":"#6B9BFF","Punk / Emo":"#F43F5E","Art Pop / Teatral":"#F472B6","Indie / Psych / Garage":"#3BFFB2","Synth / Electrónico":"#FF6BD6","Pop / K-Pop":"#F472B6","Prog Rock clásico":"#22D3EE","Rock clásico / Hard Rock":"#7FB0FF","Por confirmar":"#8a8ea6","Otros":"#8a8ea6"};
 
@@ -1246,7 +1261,7 @@ class Component extends DCLogic {
     const heard = this.state.heard || {};
     const isHeard = !!heard[a.name];
     this._vmCache = this._vmCache || {};
-    const ck = 'v38|' + a.name + '|' + mode + '|' + (isHeard ? 1 : 0) + '|' + (drift ? 1 : 0);
+    const ck = 'v39|' + a.name + '|' + mode + '|' + (isHeard ? 1 : 0) + '|' + (drift ? 1 : 0);
     if (this._vmCache[ck]) return this._vmCache[ck];
     const vm = this.buildVM(a, mode, drift, isHeard);
     this._vmCache[ck] = vm;
@@ -1382,9 +1397,17 @@ class Component extends DCLogic {
     // Ese contraste ES el efecto de corriente; si se igualan, se pierde. Los tiempos
     // salen del nivel que Ken SI llego a ver (el build de diagnostico), no de "uso
     // diario": cada vez que los alargue, dejo de percibirse.
-    const rio1 = drift ? 'rio1 ' + (6.5 * lento).toFixed(1) + 's ease-in-out infinite' : 'none';
-    const rio2 = drift ? 'rio2 ' + (11.5 * lento).toFixed(1) + 's ease-in-out infinite' : 'none';
-    const rio3 = drift ? 'rio3 ' + (19 * lento).toFixed(1) + 's ease-in-out infinite' : 'none';
+    // 'linear' a proposito: con ease-in-out la masa casi se detiene en cada parada y eso
+    // se lee como tiron. Lineal + seis paradas con giros = movimiento continuo.
+    const rio1 = drift ? 'rio1 ' + (18 * lento).toFixed(1) + 's linear infinite' : 'none';
+    const rio2 = drift ? 'rio2 ' + (27 * lento).toFixed(1) + 's linear infinite' : 'none';
+    const rio3 = drift ? 'rio3 ' + (40 * lento).toFixed(1) + 's linear infinite' : 'none';
+    // DOS TONOS INTERMEDIOS mas, para llegar a seis colores por ficha sin salirse del
+    // clan: se sacan del punto medio de tono entre cada color y la mezcla, asi que
+    // siguen derivando del hue del genero y no roban color a otras familias.
+    const tonoEntre = (x, y) => { const A = this.hex2hsl(x), B = this.hex2hsl(y);
+      return this.hsl2hex(this.hueMid(A[0], B[0]), (A[1] + B[1]) / 2, (A[2] + B[2]) / 2); };
+    const c1m = tonoEntre(c1, mix), c2m = tonoEntre(c2, mix);
     const famCol = this.rgba(this.famColor(fam), .9);
     // EL COLOR DE LA FAMILIA VISITA LA FICHA. La esquina es la MISMA para toda la familia,
     // asi que la identidad se ve tambien en por donde entra, no solo en el tono.
@@ -1432,7 +1455,7 @@ class Component extends DCLogic {
     const rootStyle = 'position:relative;border-radius:15px;padding:15px;cursor:pointer;overflow:hidden;transition:transform .15s;background:#0b0b11;--scrim:' + scrim + ';border:1px solid ' + borderCol
       + ';box-shadow:' + shadow + ';opacity:' + opacity
       + ';--ring:' + ring + ';--cf:' + covFilter + ';--lvc:' + lvColor + ';--deco:' + deco
-      + ';--nsh:' + nmShadow + ';--ckb:' + chkBorder + ';--ckbg:' + chkBg + ';--ckc:' + chkColor + ';--pmax:' + pmax + ';--dmax:' + dmax + ';--lat:' + lat + ';--o1:' + Math.min(.95, pmax * 1.5).toFixed(3) + ';--o2:' + Math.min(.85, dmax * 1.6).toFixed(3) + ';--v0:' + v0 + ';--v1:' + v1 + ';--vbg:' + vbg + ';--vbg2:' + vbg2 + ';--vmax:' + vmax + ';--pc:' + this.rgba(c1, .85) + ';--pc2:' + this.rgba(c2, .85) + ';--pc3:' + this.rgba(mix, .85) + ';--rotA:' + rotA + ';--rotB:' + rotB + ';--rotV:' + rotV + ';--eg:' + this.rgba(c1, .6);
+      + ';--nsh:' + nmShadow + ';--ckb:' + chkBorder + ';--ckbg:' + chkBg + ';--ckc:' + chkColor + ';--pmax:' + pmax + ';--dmax:' + dmax + ';--lat:' + lat + ';--o1:' + Math.min(.95, pmax * 1.5).toFixed(3) + ';--o2:' + Math.min(.85, dmax * 1.6).toFixed(3) + ';--v0:' + v0 + ';--v1:' + v1 + ';--vbg:' + vbg + ';--vbg2:' + vbg2 + ';--vmax:' + vmax + ';--pc:' + this.rgba(c1, .85) + ';--pc2:' + this.rgba(c2, .85) + ';--pc3:' + this.rgba(mix, .85) + ';--pc4:' + this.rgba(c1m, .85) + ';--pc5:' + this.rgba(c2m, .85) + ';--rotA:' + rotA + ';--rotB:' + rotB + ';--rotV:' + rotV + ';--eg:' + this.rgba(c1, .6);
     this._h = this._h || {};
     if (!this._h[a.name]) this._h[a.name] = {
       onOpen: () => this.openDetail(a),
