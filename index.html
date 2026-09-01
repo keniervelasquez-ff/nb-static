@@ -338,7 +338,7 @@ window.__prof={};window.__pf=function(k,ms){var p=window.__prof;p[k]=p[k]||[0,0,
             <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--o1);mix-blend-mode:color;transform:rotate(var(--rotA));background:{{it.bgA}};background-repeat:no-repeat;animation:{{it.rio1}}"></div>
             <!-- COLOR 2: igual, pero fluyendo en direccion CONTRARIA. Al cruzarse, los dos
                  colores se intercambian el sitio dentro de la tarjeta. -->
-            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--o2);mix-blend-mode:color;transform:rotate(var(--rotB));background:{{it.bgB}};background-repeat:no-repeat;animation:{{it.rio2}}"></div>
+            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:calc(var(--o2) * 0.62);mix-blend-mode:overlay;transform:rotate(var(--rotB));background:{{it.bgB}};background-repeat:no-repeat;animation:{{it.rio2}}"></div>
             <!-- BORDE VIVO: al mismo compas que el pulso -->
             <div style="position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1.5px var(--eg),inset 0 0 26px -6px var(--eg);opacity:.18;animation:{{it.borde}}"></div>
             <!-- VELO: el scrim es mas ancho que la tarjeta y se desliza. background-size va
@@ -605,7 +605,7 @@ class Component extends DCLogic {
   ];
   // Subir esto en cada cambio que se despliegue: aparece bajo la barra de progreso y
   // permite ver de un vistazo si Netlify (o el cache del navegador) sirve lo ultimo.
-  BUILD = "2026-08-31n";
+  BUILD = "2026-08-31o";
 
   FAMILY_COLOR = {"Musicales / Teatro":"#FCD34D","Hip-Hop / R&B":"#FBBF24","Melodic Death":"#C6FF3A","Deathcore":"#EF4444","Death / Tech Death":"#D42A2A","Mathcore / Caótico":"#F97316","Metalcore":"#FF3B6B","Prog / Djent":"#3BE0FF","Power / Symphonic / Folk":"#FFD93B","Black / Doom / Sludge":"#9B8CFF","Thrash / Groove / Heavy":"#FB923C","Nu Metal / Industrial":"#9B6BFF","Alt Metal / Grunge":"#7FB0FF","Avant-garde / Experimental":"#B6FF3A","Funk / Jazz":"#FBBF24","Post-Rock / Instrumental":"#6B9BFF","Punk / Emo":"#F43F5E","Art Pop / Teatral":"#F472B6","Indie / Psych / Garage":"#3BFFB2","Synth / Electrónico":"#FF6BD6","Pop / K-Pop":"#F472B6","Prog Rock clásico":"#22D3EE","Rock clásico / Hard Rock":"#7FB0FF","Por confirmar":"#8a8ea6","Otros":"#8a8ea6"};
 
@@ -1278,7 +1278,7 @@ class Component extends DCLogic {
     const heard = this.state.heard || {};
     const isHeard = !!heard[a.name];
     this._vmCache = this._vmCache || {};
-    const ck = 'v40|' + a.name + '|' + mode + '|' + (isHeard ? 1 : 0) + '|' + (drift ? 1 : 0);
+    const ck = 'v41|' + a.name + '|' + mode + '|' + (isHeard ? 1 : 0) + '|' + (drift ? 1 : 0);
     if (this._vmCache[ck]) return this._vmCache[ck];
     const vm = this.buildVM(a, mode, drift, isHeard);
     this._vmCache[ck] = vm;
@@ -1448,13 +1448,19 @@ class Component extends DCLogic {
       'Post-Rock / Instrumental': [17, 9], 'Musicales / Teatro': [15, 12],
       'Deathcore': [11, 12], 'Thrash / Groove / Heavy': [12, 11]
     };
-    const F = FORMA_FAM[fam] || [13, 12];
+    const F = (FORMA_FAM[fam] || [13, 12]).map(v => v + 3);
     // tres masas por capa, con la forma de la familia mas una variacion por masa
-    const masa = (dx, dy, col, stop) =>
-      'radial-gradient(' + (F[0] + dx) + '% ' + (F[1] + dy) + '% at 50% 50%,' + col + ' 0%,' + col + ' ' + stop + '%,transparent 82%)';
-    const bgA = [masa(0, 0, 'var(--pc)', 34), masa(-2, 3, 'var(--pc3)', 30), masa(2, -2, 'var(--pc4)', 32)].join(',');
-    const bgB = [masa(1, -1, 'var(--pc2)', 32), masa(-1, 4, 'var(--pc5)', 28), masa(-3, 1, 'var(--pc)', 34)].join(',');
-    const bgV = [masa(0, 1, famCol, 30), masa(2, -1, 'var(--pc3)', 32), masa(-2, 2, 'var(--pc2)', 30)].join(',');
+    // NUCLEO SOLIDO: el color aguanta hasta el 62% del radio y se desvanece al 90%. Antes
+    // moria al 28-34%, o sea que casi toda la masa era un tinte flojo — de ahi que Ken
+    // tuviera que esforzarse para verlo. El nucleo recolorea de verdad; el borde funde.
+    const masa = (dx, dy, col, nucleo) =>
+      'radial-gradient(' + (F[0] + dx) + '% ' + (F[1] + dy) + '% at 50% 50%,' + col + ' 0%,' + col + ' ' + nucleo + '%,transparent 90%)';
+    // MAXIMO CONTRASTE DE TONO: c1 y c2 son los extremos del abanico del genero (hasta 82
+    // grados de separacion). Los tonos intermedios --pc4/--pc5 homogeneizaban la paleta y
+    // restaban cambio; se quedan solo en la capa de familia, como apoyo.
+    const bgA = [masa(0, 0, 'var(--pc)', 64), masa(-2, 3, 'var(--pc2)', 58), masa(2, -2, 'var(--pc3)', 60)].join(',');
+    const bgB = [masa(1, -1, 'var(--pc2)', 62), masa(-1, 4, 'var(--pc)', 58), masa(-3, 1, 'var(--pc5)', 60)].join(',');
+    const bgV = [masa(0, 1, famCol, 60), masa(2, -1, 'var(--pc4)', 58), masa(-2, 2, 'var(--pc3)', 62)].join(',');
     // desfases negativos: las tres capas arrancan en puntos distintos del mismo patron
     const d1 = 18 * lento, d2 = 27 * lento, d3 = 40 * lento;
     const rio1 = drift ? mov + ' ' + d1.toFixed(1) + 's linear ' + (-(this.H(fam) % 100) / 100 * d1).toFixed(1) + 's infinite' : 'none';
