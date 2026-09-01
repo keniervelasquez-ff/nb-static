@@ -60,52 +60,69 @@ a{color:#C6FF3A}a:hover{color:#dcff7d}
    y no se le ve el patron. Ademas cada capa lleva TRES franjas con tiles de distinto
    tamano: con la misma parada recorren distancias distintas, asi que nunca se mueven
    como un bloque rigido. */
-/* ============ CORRIENTE ============
-   TRES ARREGLOS QUE COSTARON UNA ITERACION CADA UNO:
+/* ============ CORRIENTE: SEIS PATRONES DE MOVIMIENTO ============
+   Antes las 23 familias compartian recorrido y solo cambiaba el angulo de giro. Ahora
+   cada familia tiene UN PATRON asignado en MOV_FAM, sacado de como suena el genero.
+   Las tres capas de una ficha usan el MISMO patron (para que la ficha tenga caracter
+   propio) pero con duraciones y desfases distintos, asi no van sincronizadas.
 
-   1. EL CORTE RECTO que veia Ken era GEOMETRIA, no animacion. Las capas iban con
-      inset:-32% (un rectangulo de 643x323 sobre una ficha de 392x197) y ADEMAS giradas.
-      Un rectangulo girado solo cubre con seguridad su circulo INSCRITO: 161px de radio.
-      La diagonal de la tarjeta necesita 219. O sea que el borde de la capa cruzaba la
-      ficha y se veia como un tajo. Ahora van a inset:-68%, que da 2,36x y cubre a
-      cualquier angulo. REGLA: si una capa se gira, su lado CORTO tiene que ser mayor
-      que la DIAGONAL de la tarjeta, no que su lado largo.
+   Cada patron mueve TRES masas (posicion) y ademas cambia su TAMANO. El tamano es el
+   mando de visibilidad mas fuerte que hay: pasar de 240% a 360% de tile casi duplica la
+   masa en pantalla. Se mantiene por debajo del ancho de la ficha a proposito — una masa
+   mas grande que la tarjeta se desliza sin que cambie nada (error ya cometido).
 
-   2. "PARECEN GUSANOS." Las franjas eran 13% x 4%, que sobre la ficha son 6,5:1 — un
-      gusano. El agua son masas anchas, no hilos. Ahora rondan 2:1. OJO: como la tarjeta
-      es 2:1, unos porcentajes X e Y IGUALES ya dan una mancha 2:1 en pixeles. Para algo
-      redondo hace falta Y del doble que X.
+   Los recorridos son BUCLES CERRADOS (el 100% repite el 0%) y van con timing 'linear':
+   con ease-in-out la masa se frena en cada parada y se lee como tiron. */
 
-   3. "NO EN LINEA RECTA." Seis paradas por vuelta con giros de verdad (derecha, luego
-      arriba, luego izquierda-abajo) y ademas se anima el TAMANO, asi que la masa se
-      estira y se comprime por el camino. Timing 'linear' a proposito: con ease-in-out
-      la masa casi se para en cada parada y eso tambien se leia como tiron.
-
-   Y MAS LENTO. Ken lo pidio explicitamente: "no tienen que ir tan rapido, de hecho
-   lento pero con movimientos mas fluidos". La visibilidad se saca del TAMANO y del
-   CONTRASTE, no de la velocidad. */
-@keyframes rio1{
-  0%  {background-position:82% 20%,70% 62%,88% 84%; background-size:300% 300%,260% 260%,340% 340%}
-  18% {background-position:64% 44%,58% 30%,70% 62%; background-size:330% 330%,240% 240%,300% 300%}
-  37% {background-position:44% 22%,40% 66%,52% 34%; background-size:280% 280%,290% 290%,370% 370%}
-  56% {background-position:30% 58%,22% 26%,34% 72%; background-size:340% 340%,250% 250%,310% 310%}
-  79% {background-position:8% 30%,6% 70%,14% 40%;   background-size:300% 300%,280% 280%,350% 350%}
-  100%{background-position:82% 20%,70% 62%,88% 84%; background-size:300% 300%,260% 260%,340% 340%}
+/* deriva ancha y perezosa: post-rock, ambient, prog rock, musicales */
+@keyframes movDeriva{
+  0%  {background-position:84% 24%,66% 66%,90% 82%; background-size:300% 300%,264% 264%,336% 336%}
+  21% {background-position:62% 46%,52% 32%,68% 60%; background-size:336% 336%,240% 240%,300% 300%}
+  43% {background-position:42% 26%,38% 68%,50% 36%; background-size:276% 276%,300% 300%,360% 360%}
+  64% {background-position:26% 60%,20% 28%,32% 74%; background-size:348% 348%,252% 252%,288% 288%}
+  83% {background-position:10% 34%,8% 70%,14% 44%; background-size:300% 300%,288% 288%,348% 348%}
+  100%{background-position:84% 24%,66% 66%,90% 82%; background-size:300% 300%,264% 264%,336% 336%}
 }
-@keyframes rio2{
-  0%  {background-position:12% 74%,24% 34%,6% 54%;  background-size:280% 280%,320% 320%,240% 240%}
-  21% {background-position:30% 52%,38% 62%,22% 28%; background-size:250% 250%,280% 280%,290% 290%}
-  44% {background-position:52% 76%,48% 30%,44% 60%; background-size:300% 300%,340% 340%,230% 230%}
-  63% {background-position:70% 40%,66% 68%,60% 26%; background-size:260% 260%,290% 290%,300% 300%}
-  85% {background-position:90% 66%,86% 36%,80% 70%; background-size:290% 290%,310% 310%,250% 250%}
-  100%{background-position:12% 74%,24% 34%,6% 54%;  background-size:280% 280%,320% 320%,240% 240%}
+/* remolino: giran unas alrededor de otras. prog/djent, mathcore, avant, jazz */
+@keyframes movRemolino{
+  0%  {background-position:70% 26%,30% 74%,50% 50%; background-size:288% 288%,324% 324%,252% 252%}
+  25% {background-position:74% 68%,26% 32%,66% 34%; background-size:324% 324%,264% 264%,300% 300%}
+  50% {background-position:34% 76%,66% 24%,52% 70%; background-size:252% 252%,300% 300%,348% 348%}
+  75% {background-position:26% 34%,74% 66%,34% 46%; background-size:300% 300%,348% 348%,264% 264%}
+  100%{background-position:70% 26%,30% 74%,50% 50%; background-size:288% 288%,324% 324%,252% 252%}
 }
-@keyframes rio3{
-  0%  {background-position:26% 14%,68% 86%,46% 48%; background-size:300% 300%,260% 260%,330% 330%}
-  24% {background-position:44% 40%,52% 60%,64% 24%; background-size:270% 270%,300% 300%,290% 290%}
-  49% {background-position:66% 22%,34% 44%,32% 74%; background-size:320% 320%,240% 240%,350% 350%}
-  73% {background-position:48% 68%,58% 18%,70% 40%; background-size:280% 280%,290% 290%,300% 300%}
-  100%{background-position:26% 14%,68% 86%,46% 48%; background-size:300% 300%,260% 260%,330% 330%}
+/* marea: sube y baja, poco lateral. black/doom/sludge, nu metal, power */
+@keyframes movMarea{
+  0%  {background-position:38% 92%,62% 78%,50% 96%; background-size:312% 312%,276% 276%,348% 348%}
+  27% {background-position:44% 58%,58% 44%,46% 66%; background-size:348% 348%,312% 312%,288% 288%}
+  53% {background-position:34% 18%,66% 30%,54% 12%; background-size:264% 264%,348% 348%,324% 324%}
+  78% {background-position:48% 54%,52% 68%,42% 48%; background-size:324% 324%,264% 264%,360% 360%}
+  100%{background-position:38% 92%,62% 78%,50% 96%; background-size:312% 312%,276% 276%,348% 348%}
+}
+/* sacudida: cambia de rumbo de golpe. deathcore, thrash, punk, metalcore */
+@keyframes movSacudida{
+  0%  {background-position:88% 18%,14% 76%,54% 44%; background-size:264% 264%,336% 336%,300% 300%}
+  16% {background-position:34% 62%,72% 26%,20% 82%; background-size:348% 348%,252% 252%,324% 324%}
+  38% {background-position:76% 82%,28% 38%,84% 22%; background-size:276% 276%,324% 324%,264% 264%}
+  57% {background-position:18% 30%,84% 70%,38% 74%; background-size:336% 336%,288% 288%,348% 348%}
+  81% {background-position:62% 52%,44% 16%,66% 36%; background-size:300% 300%,360% 360%,276% 276%}
+  100%{background-position:88% 18%,14% 76%,54% 44%; background-size:264% 264%,336% 336%,300% 300%}
+}
+/* vaiven: barrido lateral amplio. funk, hip-hop, indie, art pop, pop */
+@keyframes movVaiven{
+  0%  {background-position:6% 38%,94% 62%,20% 76%;  background-size:300% 300%,300% 300%,264% 264%}
+  24% {background-position:40% 30%,60% 70%,52% 60%; background-size:348% 348%,264% 264%,312% 312%}
+  49% {background-position:92% 44%,8% 56%,86% 30%;  background-size:264% 264%,336% 336%,360% 360%}
+  74% {background-position:52% 68%,48% 32%,44% 82%; background-size:324% 324%,288% 288%,276% 276%}
+  100%{background-position:6% 38%,94% 62%,20% 76%;  background-size:300% 300%,300% 300%,264% 264%}
+}
+/* respiracion: viaja poco pero cambia MUCHO de tamano. death, melodic death, alt metal, synth */
+@keyframes movRespira{
+  0%  {background-position:32% 34%,68% 66%,54% 22%; background-size:240% 240%,360% 360%,276% 276%}
+  29% {background-position:44% 48%,58% 52%,42% 40%; background-size:372% 372%,252% 252%,348% 348%}
+  55% {background-position:60% 30%,42% 72%,66% 58%; background-size:264% 264%,336% 336%,240% 240%}
+  80% {background-position:38% 62%,64% 38%,34% 68%; background-size:348% 348%,276% 276%,360% 360%}
+  100%{background-position:32% 34%,68% 66%,54% 22%; background-size:240% 240%,360% 360%,276% 276%}
 }
 @keyframes velo{from{background-position:0% 50%}to{background-position:100% 50%}}
 /* Las tres variantes de recorrido del velo. Cual se usa lo decide la FAMILIA, en la
@@ -308,7 +325,7 @@ window.__prof={};window.__pf=function(k,ms){var p=window.__prof;p[k]=p[k]||[0,0,
             <!-- NEBULOSA: quieta y nitida. No se escala, no se filtra, no se toca. -->
             <div data-tex="{{it.texKey}}" style="position:absolute;inset:0;pointer-events:none;background-size:cover;background-position:center"></div>
             <!-- VISITA: el color de la familia entra por su esquina y se retira -->
-            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--vmax);mix-blend-mode:color;transform:rotate(var(--rotV));background:radial-gradient(13% 13% at 50% 50%,{{it.famCol}} 0%,{{it.famCol}} 30%,transparent 82%),radial-gradient(15% 11% at 50% 50%,var(--pc3) 0%,var(--pc3) 32%,transparent 82%),radial-gradient(11% 14% at 50% 50%,var(--pc2) 0%,var(--pc2) 30%,transparent 82%);background-repeat:no-repeat;animation:{{it.rio3}}"></div>
+            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--vmax);mix-blend-mode:color;transform:rotate(var(--rotV));background:{{it.bgV}};background-repeat:no-repeat;animation:{{it.rio3}}"></div>
             <!-- COLOR 1: dos manchas que fluyen cruzandose. OPACIDAD FIJA, no late.
                  Las manchas son MAS PEQUENAS QUE LA TARJETA a proposito. OJO CON LA
                  CUENTA: en radial-gradient(X% ...) la X es el RADIO, y va sobre el TILE,
@@ -318,10 +335,10 @@ window.__prof={};window.__pf=function(k,ms){var p=window.__prof;p[k]=p[k]||[0,0,
                  que la tarjeta, y una mancha que desborda la ficha se desliza SIN QUE
                  CAMBIE NADA en pantalla. Por eso Ken no veia el flujo. Hace falta que el
                  BORDE de la mancha entre y salga del encuadre. -->
-            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--o1);mix-blend-mode:color;transform:rotate(var(--rotA));background:radial-gradient(13% 12% at 50% 50%,var(--pc) 0%,var(--pc) 34%,transparent 82%),radial-gradient(11% 15% at 50% 50%,var(--pc3) 0%,var(--pc3) 30%,transparent 82%),radial-gradient(15% 10% at 50% 50%,var(--pc4) 0%,var(--pc4) 32%,transparent 82%);background-repeat:no-repeat;animation:{{it.rio1}}"></div>
+            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--o1);mix-blend-mode:color;transform:rotate(var(--rotA));background:{{it.bgA}};background-repeat:no-repeat;animation:{{it.rio1}}"></div>
             <!-- COLOR 2: igual, pero fluyendo en direccion CONTRARIA. Al cruzarse, los dos
                  colores se intercambian el sitio dentro de la tarjeta. -->
-            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--o2);mix-blend-mode:color;transform:rotate(var(--rotB));background:radial-gradient(14% 11% at 50% 50%,var(--pc2) 0%,var(--pc2) 32%,transparent 82%),radial-gradient(12% 16% at 50% 50%,var(--pc5) 0%,var(--pc5) 28%,transparent 82%),radial-gradient(10% 13% at 50% 50%,var(--pc) 0%,var(--pc) 34%,transparent 82%);background-repeat:no-repeat;animation:{{it.rio2}}"></div>
+            <div style="position:absolute;inset:-68%;pointer-events:none;opacity:var(--o2);mix-blend-mode:color;transform:rotate(var(--rotB));background:{{it.bgB}};background-repeat:no-repeat;animation:{{it.rio2}}"></div>
             <!-- BORDE VIVO: al mismo compas que el pulso -->
             <div style="position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1.5px var(--eg),inset 0 0 26px -6px var(--eg);opacity:.18;animation:{{it.borde}}"></div>
             <!-- VELO: el scrim es mas ancho que la tarjeta y se desliza. background-size va
@@ -588,7 +605,7 @@ class Component extends DCLogic {
   ];
   // Subir esto en cada cambio que se despliegue: aparece bajo la barra de progreso y
   // permite ver de un vistazo si Netlify (o el cache del navegador) sirve lo ultimo.
-  BUILD = "2026-08-31m";
+  BUILD = "2026-08-31n";
 
   FAMILY_COLOR = {"Musicales / Teatro":"#FCD34D","Hip-Hop / R&B":"#FBBF24","Melodic Death":"#C6FF3A","Deathcore":"#EF4444","Death / Tech Death":"#D42A2A","Mathcore / Caótico":"#F97316","Metalcore":"#FF3B6B","Prog / Djent":"#3BE0FF","Power / Symphonic / Folk":"#FFD93B","Black / Doom / Sludge":"#9B8CFF","Thrash / Groove / Heavy":"#FB923C","Nu Metal / Industrial":"#9B6BFF","Alt Metal / Grunge":"#7FB0FF","Avant-garde / Experimental":"#B6FF3A","Funk / Jazz":"#FBBF24","Post-Rock / Instrumental":"#6B9BFF","Punk / Emo":"#F43F5E","Art Pop / Teatral":"#F472B6","Indie / Psych / Garage":"#3BFFB2","Synth / Electrónico":"#FF6BD6","Pop / K-Pop":"#F472B6","Prog Rock clásico":"#22D3EE","Rock clásico / Hard Rock":"#7FB0FF","Por confirmar":"#8a8ea6","Otros":"#8a8ea6"};
 
@@ -1261,7 +1278,7 @@ class Component extends DCLogic {
     const heard = this.state.heard || {};
     const isHeard = !!heard[a.name];
     this._vmCache = this._vmCache || {};
-    const ck = 'v39|' + a.name + '|' + mode + '|' + (isHeard ? 1 : 0) + '|' + (drift ? 1 : 0);
+    const ck = 'v40|' + a.name + '|' + mode + '|' + (isHeard ? 1 : 0) + '|' + (drift ? 1 : 0);
     if (this._vmCache[ck]) return this._vmCache[ck];
     const vm = this.buildVM(a, mode, drift, isHeard);
     this._vmCache[ck] = vm;
@@ -1399,20 +1416,54 @@ class Component extends DCLogic {
     // diario": cada vez que los alargue, dejo de percibirse.
     // 'linear' a proposito: con ease-in-out la masa casi se detiene en cada parada y eso
     // se lee como tiron. Lineal + seis paradas con giros = movimiento continuo.
-    const rio1 = drift ? 'rio1 ' + (18 * lento).toFixed(1) + 's linear infinite' : 'none';
-    const rio2 = drift ? 'rio2 ' + (27 * lento).toFixed(1) + 's linear infinite' : 'none';
-    const rio3 = drift ? 'rio3 ' + (40 * lento).toFixed(1) + 's linear infinite' : 'none';
-    // DOS TONOS INTERMEDIOS mas, para llegar a seis colores por ficha sin salirse del
-    // clan: se sacan del punto medio de tono entre cada color y la mezcla, asi que
-    // siguen derivando del hue del genero y no roban color a otras familias.
+    const famCol = this.rgba(this.famColor(fam), .9);
     const tonoEntre = (x, y) => { const A = this.hex2hsl(x), B = this.hex2hsl(y);
       return this.hsl2hex(this.hueMid(A[0], B[0]), (A[1] + B[1]) / 2, (A[2] + B[2]) / 2); };
     const c1m = tonoEntre(c1, mix), c2m = tonoEntre(c2, mix);
-    const famCol = this.rgba(this.famColor(fam), .9);
+    // PATRON DE MOVIMIENTO POR FAMILIA, sacado de como suena el genero. Las tres capas de
+    // la ficha usan el MISMO patron (le da caracter propio) con duraciones y desfases
+    // distintos, asi que no van sincronizadas.
+    const MOV_FAM = {
+      'Black / Doom / Sludge': 'movMarea', 'Nu Metal / Industrial': 'movMarea',
+      'Power / Symphonic / Folk': 'movMarea',
+      'Prog / Djent': 'movRemolino', 'Prog Rock clásico': 'movRemolino',
+      'Mathcore / Caótico': 'movRemolino', 'Avant-garde / Experimental': 'movRemolino',
+      'Deathcore': 'movSacudida', 'Thrash / Groove / Heavy': 'movSacudida',
+      'Punk / Emo': 'movSacudida', 'Metalcore': 'movSacudida',
+      'Funk / Jazz': 'movVaiven', 'Hip-Hop / R&B': 'movVaiven',
+      'Indie / Psych / Garage': 'movVaiven', 'Art Pop / Teatral': 'movVaiven',
+      'Pop / K-Pop': 'movVaiven',
+      'Death / Tech Death': 'movRespira', 'Melodic Death': 'movRespira',
+      'Alt Metal / Grunge': 'movRespira', 'Synth / Electrónico': 'movRespira',
+      'Post-Rock / Instrumental': 'movDeriva', 'Musicales / Teatro': 'movDeriva',
+      'Rock clásico / Hard Rock': 'movDeriva'
+    };
+    const mov = MOV_FAM[fam] || 'movDeriva';
+    // FORMA DE LAS MASAS POR FAMILIA: [ancho, alto] en % del tile. OJO: la ficha es 2:1,
+    // asi que X e Y IGUALES ya dan una mancha 2:1 en pixeles. Para algo redondo, Y doble.
+    const FORMA_FAM = {
+      'Black / Doom / Sludge': [16, 10], 'Nu Metal / Industrial': [15, 11],
+      'Mathcore / Caótico': [10, 15], 'Avant-garde / Experimental': [11, 14],
+      'Funk / Jazz': [13, 15], 'Hip-Hop / R&B': [14, 14],
+      'Post-Rock / Instrumental': [17, 9], 'Musicales / Teatro': [15, 12],
+      'Deathcore': [11, 12], 'Thrash / Groove / Heavy': [12, 11]
+    };
+    const F = FORMA_FAM[fam] || [13, 12];
+    // tres masas por capa, con la forma de la familia mas una variacion por masa
+    const masa = (dx, dy, col, stop) =>
+      'radial-gradient(' + (F[0] + dx) + '% ' + (F[1] + dy) + '% at 50% 50%,' + col + ' 0%,' + col + ' ' + stop + '%,transparent 82%)';
+    const bgA = [masa(0, 0, 'var(--pc)', 34), masa(-2, 3, 'var(--pc3)', 30), masa(2, -2, 'var(--pc4)', 32)].join(',');
+    const bgB = [masa(1, -1, 'var(--pc2)', 32), masa(-1, 4, 'var(--pc5)', 28), masa(-3, 1, 'var(--pc)', 34)].join(',');
+    const bgV = [masa(0, 1, famCol, 30), masa(2, -1, 'var(--pc3)', 32), masa(-2, 2, 'var(--pc2)', 30)].join(',');
+    // desfases negativos: las tres capas arrancan en puntos distintos del mismo patron
+    const d1 = 18 * lento, d2 = 27 * lento, d3 = 40 * lento;
+    const rio1 = drift ? mov + ' ' + d1.toFixed(1) + 's linear ' + (-(this.H(fam) % 100) / 100 * d1).toFixed(1) + 's infinite' : 'none';
+    const rio2 = drift ? mov + ' ' + d2.toFixed(1) + 's linear ' + (-((this.H(fam) + 37) % 100) / 100 * d2).toFixed(1) + 's infinite reverse' : 'none';
+    const rio3 = drift ? mov + ' ' + d3.toFixed(1) + 's linear ' + (-((this.H(fam) + 71) % 100) / 100 * d3).toFixed(1) + 's infinite' : 'none';
     // EL COLOR DE LA FAMILIA VISITA LA FICHA. La esquina es la MISMA para toda la familia,
     // asi que la identidad se ve tambien en por donde entra, no solo en el tono.
     const VISITA = { 1: .30, 2: .24, 3: .17, 4: .10 };
-    const vmax = drift ? Math.min(.7, (VISITA[p] || .17) * 2.6) : 0;
+    const vmax = drift ? Math.min(.82, (VISITA[p] || .17) * 3) : 0;
     // El PASEO: por donde entra y hasta donde llega. Cuatro recorridos, uno por esquina,
     // repartidos por familia — asi la identidad tambien esta en la direccion de entrada.
     const PASEO = [['-8% -6%', '58% 46%'], ['104% -4%', '44% 52%'],
@@ -1455,7 +1506,7 @@ class Component extends DCLogic {
     const rootStyle = 'position:relative;border-radius:15px;padding:15px;cursor:pointer;overflow:hidden;transition:transform .15s;background:#0b0b11;--scrim:' + scrim + ';border:1px solid ' + borderCol
       + ';box-shadow:' + shadow + ';opacity:' + opacity
       + ';--ring:' + ring + ';--cf:' + covFilter + ';--lvc:' + lvColor + ';--deco:' + deco
-      + ';--nsh:' + nmShadow + ';--ckb:' + chkBorder + ';--ckbg:' + chkBg + ';--ckc:' + chkColor + ';--pmax:' + pmax + ';--dmax:' + dmax + ';--lat:' + lat + ';--o1:' + Math.min(.95, pmax * 1.5).toFixed(3) + ';--o2:' + Math.min(.85, dmax * 1.6).toFixed(3) + ';--v0:' + v0 + ';--v1:' + v1 + ';--vbg:' + vbg + ';--vbg2:' + vbg2 + ';--vmax:' + vmax + ';--pc:' + this.rgba(c1, .85) + ';--pc2:' + this.rgba(c2, .85) + ';--pc3:' + this.rgba(mix, .85) + ';--pc4:' + this.rgba(c1m, .85) + ';--pc5:' + this.rgba(c2m, .85) + ';--rotA:' + rotA + ';--rotB:' + rotB + ';--rotV:' + rotV + ';--eg:' + this.rgba(c1, .6);
+      + ';--nsh:' + nmShadow + ';--ckb:' + chkBorder + ';--ckbg:' + chkBg + ';--ckc:' + chkColor + ';--pmax:' + pmax + ';--dmax:' + dmax + ';--lat:' + lat + ';--o1:' + Math.min(1, pmax * 1.7).toFixed(3) + ';--o2:' + Math.min(.92, dmax * 1.8).toFixed(3) + ';--v0:' + v0 + ';--v1:' + v1 + ';--vbg:' + vbg + ';--vbg2:' + vbg2 + ';--vmax:' + vmax + ';--pc:' + this.rgba(c1, .85) + ';--pc2:' + this.rgba(c2, .85) + ';--pc3:' + this.rgba(mix, .85) + ';--pc4:' + this.rgba(c1m, .85) + ';--pc5:' + this.rgba(c2m, .85) + ';--rotA:' + rotA + ';--rotB:' + rotB + ';--rotV:' + rotV + ';--eg:' + this.rgba(c1, .6);
     this._h = this._h || {};
     if (!this._h[a.name]) this._h[a.name] = {
       onOpen: () => this.openDetail(a),
@@ -1470,7 +1521,7 @@ class Component extends DCLogic {
       metas, fem: !!a.female, rev: a.origin_note === 'rev',
       chkBorder, chkBg, chkColor,
       texKey, pulso, deriva, velo, visita, visitaBg, famCol,
-      rio1, rio2, rio3,
+      rio1, rio2, rio3, bgA, bgB, bgV,
       latido, giro, borde: bordeAnim
     };
   }
